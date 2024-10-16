@@ -27,7 +27,7 @@ function tableOfContent() {
         
         if (level === 2) { 
             nestedToc.push({ item: listItem, children: [] });
-        } else if (level === 3) { // h3
+        } else if (level === 3) {
             if (nestedToc.length > 0) {
                 nestedToc[nestedToc.length - 1].children.push(listItem);
             }
