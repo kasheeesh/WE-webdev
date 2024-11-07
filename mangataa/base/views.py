@@ -1,8 +1,56 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from .models import Player, Game
+
+import random
 
 
-def index(request):
-    return HttpResponse("index")
+def home(request):
+    if request.method == 'POST':
+        player_count = int(request.POST['player_count'])
+        players = [{'id': i, 'name': ''} for i in range(player_count)]
+        return render(request, 'game_setup.html', {'players': players})
+    return render(request, 'home.html')
 
-# Create your views here.
+
+def game(request):
+    if request.method == 'POST':
+        players_data = request.POST.getlist('player_data')
+        bet_cards = request.POST.getlist('bet_card')
+        bet_type = request.POST.getlist('bet_type')
+        bet_amount = request.POST.getlist('bet_amount')
+
+        players = []
+        print(players_data)
+        for name, bet_card, bet_type, bet_amount in zip(players_data, bet_cards, bet_type, bet_amount):
+            player = Player.objects.create(
+                name=name, bet_card=bet_card, bet_type=bet_type, bet_amount=bet_amount)
+            players.append(player)
+
+        cards = [f"{rank} of {suit}" for suit in [
+            'Hearts', 'Diamonds', 'Clubs', 'Spades'] for rank in range(1, 14)]
+        random.shuffle(cards)
+        in_pile, out_pile = cards[::2], cards[1::2]
+
+        game = Game()
+        # game.players.set(players)
+        game.dealer_cards = {'in': in_pile, 'out': out_pile}
+        game.save()
+        game.players.set(players)
+        game.save()
+        return redirect('result', game_id=game.id)
+
+
+def result(request, game_id):
+    game = Game.objects.get(id=game_id)
+    winner = None
+
+    for player in game.players.all():
+        if player.bet_card in game.dealer_cards[player.bet_type]:
+            winner = player.name
+            game.winner = winner
+            break
+    if not winner:
+        game.winner = "Dealer"
+
+    game.save()
+    return render(request, 'results.html', {'game': game, 'winner': game.winner})

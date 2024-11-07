@@ -1,0 +1,6 @@
+<form method="post">
+  {% csrf_token %}
+  <label for="player_count">Enter number of players:</label>
+  <input type="number" name="player_count" min="1" required />
+  <button type="submit">Start</button>
+</form>

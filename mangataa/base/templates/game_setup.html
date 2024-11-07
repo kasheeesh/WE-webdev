@@ -1,0 +1,18 @@
+<form method="post" action="{% url 'game' %}">
+  {% csrf_token %} {% for player in players %}
+  <div>
+    <label>Player {{ forloop.counter }} Name:</label>
+    <input type="text" name="player_data" required />
+    <label>Bet Card:</label>
+    <input type="text" name="bet_card" required />
+    <label>Bet Type:</label>
+    <select name="bet_type">
+      <option value="in">In</option>
+      <option value="out">Out</option>
+    </select>
+    <label>Bet Amount:</label>
+    <input type="number" name="bet_amount" required />
+  </div>
+  {% endfor %}
+  <button type="submit">Submit</button>
+</form>
