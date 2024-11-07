@@ -12,12 +12,20 @@ def home(request):
     return render(request, 'home.html')
 
 
+amount = 0
+
+
 def game(request):
+    global amount
     if request.method == 'POST':
         players_data = request.POST.getlist('player_data')
         bet_cards = request.POST.getlist('bet_card')
         bet_type = request.POST.getlist('bet_type')
         bet_amount = request.POST.getlist('bet_amount')
+
+        amount = 0
+        for i in bet_amount:
+            amount += int(i)
 
         players = []
         print(players_data)
@@ -32,7 +40,6 @@ def game(request):
         in_pile, out_pile = cards[::2], cards[1::2]
 
         game = Game()
-        # game.players.set(players)
         game.dealer_cards = {'in': in_pile, 'out': out_pile}
         game.save()
         game.players.set(players)
@@ -43,7 +50,6 @@ def game(request):
 def result(request, game_id):
     game = Game.objects.get(id=game_id)
     winner = None
-
     for player in game.players.all():
         if player.bet_card in game.dealer_cards[player.bet_type]:
             winner = player.name
@@ -53,4 +59,4 @@ def result(request, game_id):
         game.winner = "Dealer"
 
     game.save()
-    return render(request, 'results.html', {'game': game, 'winner': game.winner})
+    return render(request, 'results.html', {'game': game, 'winner': game.winner, 'amount': amount})
