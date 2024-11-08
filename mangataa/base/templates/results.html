@@ -1,6 +1,75 @@
-<h2>Game Results</h2>
-<p>Winner: {{ winner }}</p>
-<p>Amount won by player/players : {{amount}}</p>
-<p>Dealer cards:</p>
-<p>In pile: {{ game.dealer_cards.in }}</p>
-<p>Out pile: {{ game.dealer_cards.out }}</p>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Results</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: black;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .results-container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px 30px;
+        max-width: 600px;
+        width: 100%;
+      }
+
+      h2 {
+        font-size: 28px;
+        color: #af1740;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      p {
+        font-size: 16px;
+        color: #af1740;
+        line-height: 1.6;
+      }
+
+      p span {
+        font-weight: bold;
+        color: #af1740;
+      }
+
+      .dealer-cards {
+        margin-top: 20px;
+      }
+
+      .dealer-cards p {
+        margin-bottom: 5px;
+      }
+
+      .highlight {
+        background-color: #f0f8ff;
+        padding: 10px;
+        border-left: 4px solid #af1740;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="results-container">
+      <h2>Game Results</h2>
+      <p class="highlight">Winner: <span>{{ winner }}</span></p>
+      <p>Amount won by player/players: <span>{{ amount }}</span></p>
+      <div class="dealer-cards">
+        <h3>Dealer Cards</h3>
+        <p>In pile: <span>{{ game.dealer_cards.in }}</span></p>
+        <p>Out pile: <span>{{ game.dealer_cards.out }}</span></p>
+      </div>
+    </div>
+  </body>
+</html>

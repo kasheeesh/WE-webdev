@@ -64,6 +64,7 @@ def result(request, game_id):
         if player.bet_card in game.dealer_cards[player.bet_type]:
             winnernames.append(player.name)
             winner = player.name
+            # winner = player
             # game.winner += player.name
             # break
     game.winner = winnernames

@@ -1,16 +1,84 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to Mangataa</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+
+      body {
+        background: url("https://t4.ftcdn.net/jpg/02/90/52/13/360_F_290521309_UpvOs8Dwp67xAppU7ebUsITQYJAtj0Z4.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        width: 80%;
+        max-width: 500px;
+      }
+
+      /* Header Styling */
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      header p {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: white;
+      }
+
+      .highlight {
+        color: #af1740;
+      }
+
+      .play-button {
+        background: #af1740;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      .play-button:hover {
+        background-color: #cc2b52;
+      }
+      .play-button:active {
+        background-color: #8e2c14;
+      }
+    </style>
   </head>
   <body>
-    <h1>Welcome to Mangataa Game</h1>
-    <p>Embark on an epic adventure.</p>
-    <form method="POST">
-      {% csrf_token %}
-      <button type="submit">Play Now</button>
-    </form>
+    <div class="container">
+      <header>
+        <h1>Welcome to the game of <span class="highlight">Mangataa</span></h1>
+        <p>Take a chance!</p>
+      </header>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="play-button">Play Now</button>
+      </form>
+    </div>
   </body>
 </html>
