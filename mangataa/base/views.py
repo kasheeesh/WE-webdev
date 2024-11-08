@@ -12,7 +12,14 @@ def home(request):
     return render(request, 'home.html')
 
 
+def landing(request):
+    if request.method == 'POST':
+        return redirect('home')
+    return render(request, 'welcome.html')
+
+
 amount = 0
+winnernames = []
 
 
 def game(request):
@@ -48,15 +55,22 @@ def game(request):
 
 
 def result(request, game_id):
+    global winnernames
+    global amount
+    winnernames = []
     game = Game.objects.get(id=game_id)
     winner = None
     for player in game.players.all():
         if player.bet_card in game.dealer_cards[player.bet_type]:
+            winnernames.append(player.name)
             winner = player.name
-            game.winner = winner
-            break
+            # game.winner += player.name
+            # break
+    game.winner = winnernames
     if not winner:
         game.winner = "Dealer"
+    if (len(winnernames) != 0):
+        amount = amount/len(winnernames)
 
     game.save()
     return render(request, 'results.html', {'game': game, 'winner': game.winner, 'amount': amount})
