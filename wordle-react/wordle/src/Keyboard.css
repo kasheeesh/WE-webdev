@@ -1,0 +1,27 @@
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    max-width: 400px;
+    margin-left :220px;
+    margin-top:50px;
+}
+
+.key {
+    padding: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.key:hover {
+    background-color: #ddd;
+}
+
+.key:active {
+    background-color: #bbb;
+}
