@@ -1,0 +1,31 @@
+[
+    {
+    "feedback": "RYYRG",
+    "message": "5 guesses left"
+    },
+    	
+    {
+    "feedback": "RYYRR",
+    "message": "4 guesses left"
+    },
+    {
+    "feedback": "RGRRG",
+    "message": "3 guesses left"
+    },
+    {
+    "feedback": "RRRRG",
+    "message": "2 guesses left"
+    },
+    	
+
+    {
+    "feedback": "RYRYR",
+    "message": "1 guesses left"
+    },
+    {
+    "answer": "puree",
+    "feedback": "GRRRR",
+    "message": "You have exceeded the number of allowed guesses. Post to /create to create a new game"
+    }
+]
+
