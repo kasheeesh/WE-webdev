@@ -1,9 +1,6 @@
-
 import './App.css';
 import './index.css';
 import { useState } from 'react';
-import Square from './components/Square';
-import Row from './components/Row';
 import Grid from './components/Grid';
 import Keyboard from './components/Keyboard';
 
@@ -14,27 +11,46 @@ function App() {
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(0);
   const [usedLetters, setUsedLetters] = useState({});
+  const [gameOver, setGameOver] = useState(false);
+  const [gameMessage, setGameMessage] = useState('');
 
   const handleLetterClick = (letter) => {
-    if (currentGuess.length < 5) {
-      setCurrentGuess((prev) => prev + letter);
+    if (currentGuess.length < 5 && !gameOver) {
+      const updatedGuess = currentGuess + letter;
+      setCurrentGuess(updatedGuess);
+
+      setGuesses((prev) => {
+        const newGuesses = [...prev];
+        newGuesses[currentRow] = updatedGuess;
+        return newGuesses;
+      });
     }
   };
 
   const handleSubmit = () => {
-    if (currentGuess.length === 5) {
-      const newGuesses = [...guesses];
-      newGuesses[currentRow] = currentGuess;
-
+    if (currentGuess.length === 5 && !gameOver) {
       const newFeedback = [...feedback];
-      newFeedback[currentRow] = getFeedback(currentGuess, solution);
+      const currentFeedback = getFeedback(currentGuess, solution);
+      newFeedback[currentRow] = currentFeedback;
 
       const newUsedLetters = { ...usedLetters };
-      updateUsedLetters(newUsedLetters, currentGuess, newFeedback[currentRow]);
+      updateUsedLetters(newUsedLetters, currentGuess, currentFeedback);
 
-      setGuesses(newGuesses);
       setFeedback(newFeedback);
       setUsedLetters(newUsedLetters);
+
+      if (currentGuess === solution) {
+        setGameOver(true);
+        setGameMessage('Congratulations! You guessed the word!');
+        return;
+      }
+
+      if (currentRow === 5) {
+        setGameOver(true);
+        setGameMessage(`Game Over! The correct word was "${solution}".`);
+        return;
+      }
+
       setCurrentGuess('');
       setCurrentRow(currentRow + 1);
     }
@@ -58,14 +74,13 @@ function App() {
     <div className="App">
       <h1>Wordle Clone</h1>
       <Grid guesses={guesses} feedback={feedback} />
-      <button onClick={handleSubmit} disabled={currentGuess.length !== 5}>
+      <button onClick={handleSubmit} disabled={currentGuess.length !== 5 || gameOver}>
         Submit Guess
       </button>
       <Keyboard onLetterClick={handleLetterClick} usedLetters={usedLetters} />
+      {gameOver && <div className="game-over">{gameMessage}</div>}
     </div>
   );
 }
 
 export default App;
-
-
