@@ -108,8 +108,6 @@
 // }
 
 // export default App;
-
-
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './index.css';
@@ -118,7 +116,7 @@ import Keyboard from './components/Keyboard';
 
 function App() {
   const [gameId, setGameId] = useState('');
-  const [guesses, setGuesses] = useState(['', '', '', '', '', '']);
+  const [guesses, setGuesses] = useState(['', '', '', '', '']);
   const [feedback, setFeedback] = useState(Array(6).fill(['', '', '', '', '']));
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(0);
@@ -127,65 +125,65 @@ function App() {
   const [gameMessage, setGameMessage] = useState('');
   const [guessesLeft, setGuessesLeft] = useState(5);
 
-  
-  const registerGame = async () => {
+  // Utility function to make API calls
+  const apiCall = async (url, method, body = null) => {
     try {
-      const response = await fetch('https://we6.talentsprint.com/wordle/game/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mode: 'wordle',
-          name: 'kasheesh', // Name can be dynamic
-        }),
-      });
+      const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies in the request
+      };
+      if (body) options.body = JSON.stringify(body);
 
+      const response = await fetch(url, options);
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Failed to register game:', errorData.message || 'Unknown error');
-        return;
+        throw new Error(errorData.message || 'Unknown error');
       }
 
-      const data = await response.json();
-      setGameId(data.id); // Save the game ID from the response
-      console.log('Game registered successfully:', data);
-
-      // Now, create the game
-      createGame(data.id); // Call createGame with the ID from registration response
+      return await response.json();
     } catch (error) {
-      console.error('Error during registration:', error);
+      console.error(`Error during API call to ${url}:`, error);
+      return null;
     }
   };
 
-  // Create game function
-  const createGame = async (id) => {
-    try {
-      const response = await fetch('https://we6.talentsprint.com/wordle/game/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: id,
-          overwrite: true,
-        }),
-      });
+  // Register and create the game
+  useEffect(() => {
+    const initializeGame = async () => {
+      try {
+        console.log('Registering and creating game...');
+        // Register the game
+        const registerData = await apiCall(
+          'https://we6.talentsprint.com/wordle/game/register',
+          'POST',
+          { mode: 'wordle', name: 'kasheesh' }
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to create game:', errorData.message || 'Unknown error');
-        return;
+        if (!registerData) return;
+
+        const { id } = registerData;
+        setGameId(id);
+
+        // Create the game
+        const createData = await apiCall(
+          'https://we6.talentsprint.com/wordle/game/create',
+          'POST',
+          { id, overwrite: true }
+        );
+
+        if (createData) {
+          console.log('Game initialized successfully:', createData);
+        }
+      } catch (error) {
+        console.error('Error during game initialization:', error);
       }
+    };
 
-      const data = await response.json();
-      console.log('Game created successfully:', data);
-    } catch (error) {
-      console.error('Error during game creation:', error);
-    }
-  };
+    initializeGame();
+  }, []);
 
-  
+  // Handle letter clicks
   const handleLetterClick = (letter) => {
     if (currentGuess.length < 5 && !gameOver) {
       const updatedGuess = currentGuess + letter;
@@ -199,23 +197,28 @@ function App() {
     }
   };
 
+  // Handle submission of a guess
   const handleSubmit = async () => {
     if (currentGuess.length === 5 && !gameOver && guessesLeft > 0) {
       const newFeedback = [...feedback];
-      const response = await submitGuess(currentGuess, gameId);
-      
+      const response = await apiCall(
+        'https://we6.talentsprint.com/wordle/game/guess',
+        'POST',
+        { guess: currentGuess, id: gameId }
+      );
+
       if (response) {
         const { feedback: feedbackStr, message } = response;
-        newFeedback[currentRow] = feedbackStr.split('').map(status => getFeedbackStatus(status));
-        
+        newFeedback[currentRow] = feedbackStr.split('').map(getFeedbackStatus);
+
         setFeedback(newFeedback);
-        setGuessesLeft((prev) => prev - 1); 
+        setGuessesLeft((prev) => prev - 1);
         setGameMessage(message);
-        
+
         if (feedbackStr === 'GGGGG') {
           setGameOver(true);
           setGameMessage('Congratulations! You guessed the word!');
-        } else if (guessesLeft === 0) {
+        } else if (guessesLeft === 1) {
           setGameOver(true);
           setGameMessage(`Game Over! The correct word was "${currentGuess}".`);
         } else {
@@ -226,44 +229,17 @@ function App() {
     }
   };
 
-  // Submit guess function
-  const submitGuess = async (guess, id) => {
-    try {
-      const response = await fetch('https://we6.talentsprint.com/wordle/game/guess', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          guess: guess,
-          id: id,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to submit guess:', errorData.message || 'Unknown error');
-        return null;
-      }
-
-      return await response.json(); // Return the response data
-    } catch (error) {
-      console.error('Error during guess submission:', error);
-      return null;
-    }
-  };
-
-  // Get feedback status from the server response
+  // Get feedback status
   const getFeedbackStatus = (status) => {
     switch (status) {
       case 'G':
-        return 'correct'; // Correct letter and position
+        return 'correct';
       case 'Y':
-        return 'present'; // Correct letter, wrong position
+        return 'present';
       case 'R':
-        return 'absent'; // Incorrect letter
+        return 'absent';
       default:
-        return ''; // Default case
+        return '';
     }
   };
 
@@ -280,10 +256,6 @@ function App() {
         return 'black';
     }
   };
-
-  useEffect(() => {
-    registerGame(); // Automatically register and create the game
-  }, []);
 
   return (
     <div className="App">
